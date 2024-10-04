@@ -1,0 +1,9 @@
+/* 社員リストビュー */
+.employeeListView {
+    width: 400px;
+}
+
+.employeeListView, .employeeListView th, .employeeListView td {
+    border-collapse: collapse;
+    border: 1px #000000 solid;
+}
