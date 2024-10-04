@@ -1,4 +1,4 @@
-﻿/**
+/**
  * GUIDのユーティリティです。
  */
 export class GuidUtil {

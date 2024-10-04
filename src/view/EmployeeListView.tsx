@@ -1,11 +1,30 @@
 import { EmployeeModel } from '../model/EmployeeModel';
 import styles from './EmployeeListView.module.css';
 
-interface EmployeeListViewProps {
+/**
+ * 社員リストビューのPropsです。
+ */
+export interface EmployeeListViewProps {
+
+    /**
+     * 社員リストです。
+     */
     employeeList: Array<EmployeeModel>,
+
+    /**
+     * コールバック関数です。
+     * 
+     * @param employeeId 社員ID
+     */
     callback: (employeeId: string) => void
 }
 
+/**
+ * 社員リストのビューです。
+ * 
+ * @param props 社員リストビューのProps
+ * @returns TypeScript XMLの要素
+ */
 export default function EmployeeListView(props: EmployeeListViewProps): JSX.Element {
 
     return (<table className={styles.employeeListView}>

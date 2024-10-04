@@ -12,6 +12,8 @@ import EmployeeListView from './EmployeeListView';
  */
 export default function EmployeeCrudView(): JSX.Element {
 
+    
+
     // ------------------------------------------------------------------------
     // useState使用(変更時に画面再描画が必要なデータ)
     // ------------------------------------------------------------------------
@@ -46,7 +48,7 @@ export default function EmployeeCrudView(): JSX.Element {
         DepartmentRepository.findDepartmentAll((departmentListModel: DepartmentListModel) => {
             // departmentListModelの更新
             setDepartmentListModel(departmentListModel);
-            // 
+            // 検索条件で社員リストを検索
             findEmployeeListByCondition(departmentListModel);
         });
 
@@ -55,23 +57,38 @@ export default function EmployeeCrudView(): JSX.Element {
     // useEffectフックと[]の2番目の引数でマウント時に1回のみ呼び出される
     // https://www.twilio.com/ja-jp/blog/react-choose-functional-components-jp
 
+    /**
+     * 検索条件で社員リストを検索します。
+     * 
+     * @param _departmentListModel 部署モデルのリストを扱うモデル
+     */
     function findEmployeeListByCondition(_departmentListModel?: DepartmentListModel) {
+
         if (!_departmentListModel) {
+            // 引数未設定時はuseStateされたdepartmentListModelを使う
             _departmentListModel = departmentListModel;
         }
+
+        // 検索条件
         const employeeIdFind = employeeIdFindRef.current!.value!;
         const employeeNameFind = employeeNameFindRef.current!.value!;
         const departmentIdFind = departmentIdFindRef.current!.value!;
+
+        // 社員リストを検索
         const employeeModelList: Array<EmployeeModel> = 
-            _departmentListModel!.findEmployeeListByArgs(employeeIdFind, employeeNameFind, departmentIdFind);
+            _departmentListModel.findEmployeeListByArgs(employeeIdFind, employeeNameFind, departmentIdFind);
+        
+        // 社員リストを検索結果で更新
         setEmployeeList(employeeModelList);
     }
 
     /**
      * 社員を選択します。
+     * 
+     * @param employeeId 社員ID
      */
     function selectEmployee(employeeId: string) {
-        const employee = departmentListModel!.findEmployeeListByArgs(employeeId, '', '')[0];
+        const employee = departmentListModel.findEmployeeListByArgs(employeeId, '', '')[0];
         setEmployeeId(employeeId);
         setEmployeeName(employee.name);
         setDepartmentId(employee.departmentModel!.id);
@@ -93,7 +110,7 @@ export default function EmployeeCrudView(): JSX.Element {
             return false;
         }
 
-        let employeeList: Array<EmployeeModel> = departmentListModel!.findEmployeeListByArgs(employeeId, '', '');
+        const employeeList: Array<EmployeeModel> = departmentListModel.findEmployeeListByArgs(employeeId, '', '');
         if (employeeList.length > 0) {
             return false;
         }
@@ -117,7 +134,7 @@ export default function EmployeeCrudView(): JSX.Element {
             return false;
         }
 
-        let employeeList: Array<EmployeeModel> = departmentListModel!.findEmployeeListByArgs(employeeId, '', '');
+        const employeeList: Array<EmployeeModel> = departmentListModel.findEmployeeListByArgs(employeeId, '', '');
         if (employeeList.length === 0) {
             return false;
         }
@@ -133,7 +150,7 @@ export default function EmployeeCrudView(): JSX.Element {
         if (!employeeId) {
             return false;
         }
-        let employeeList: Array<EmployeeModel> = departmentListModel!.findEmployeeListByArgs(employeeId, '', '');
+        const employeeList: Array<EmployeeModel> = departmentListModel.findEmployeeListByArgs(employeeId, '', '');
         if (employeeList.length === 0) {
             return false;
         }
@@ -151,10 +168,10 @@ export default function EmployeeCrudView(): JSX.Element {
             return;
         }
 
-        let departmentModel: DepartmentModel | null = departmentListModel!.findDepartmentById(departmentId);
+        const departmentModel: DepartmentModel = departmentListModel.findDepartmentById(departmentId)!;
 
         // 追加
-        departmentModel?.addEmployee(employeeId, employeeName);
+        departmentModel.addEmployee(employeeId, employeeName);
 
         // 入力値をリセット
         resetInput();
@@ -172,11 +189,11 @@ export default function EmployeeCrudView(): JSX.Element {
             return;
         }
 
-        let employee: EmployeeModel = departmentListModel!.findEmployeeListByArgs(employeeId, '', '')[0];
-        let departmentModel: DepartmentModel | null = departmentListModel!.findDepartmentById(departmentId);
+        const employee: EmployeeModel = departmentListModel.findEmployeeListByArgs(employeeId, '', '')[0];
+        const departmentModel: DepartmentModel = departmentListModel.findDepartmentById(departmentId)!;
 
         // 更新
-        employee.updateEmployeeInfo(employeeName, departmentModel!);
+        employee.updateEmployeeInfo(employeeName, departmentModel);
 
         // 入力値をリセット
         resetInput();
@@ -194,7 +211,7 @@ export default function EmployeeCrudView(): JSX.Element {
             return;
         }
 
-        let employee: EmployeeModel = departmentListModel!.findEmployeeListByArgs(employeeId, '', '')[0];
+        const employee: EmployeeModel = departmentListModel.findEmployeeListByArgs(employeeId, '', '')[0];
 
         // 削除
         employee.departmentModel!.deleteEmployee(employeeId);
@@ -222,7 +239,7 @@ export default function EmployeeCrudView(): JSX.Element {
      * すべての部署と所属する社員を保存します。
      */
     function saveDepartmentAll() {
-        DepartmentRepository.saveDepartmentAll(departmentListModel!, function () {
+        DepartmentRepository.saveDepartmentAll(departmentListModel, () => {
         });
     }
 
@@ -243,7 +260,7 @@ export default function EmployeeCrudView(): JSX.Element {
                         <select onChange={(e) => findEmployeeListByCondition()} ref={departmentIdFindRef}>
                             {(<option key="" value=""></option>)}
                             {
-                                departmentListModel!.departmentModelList.map((department, idx) => (
+                                departmentListModel.departmentModelList.map((department, idx) => (
                                     <option key={idx} value={department.id}>{department.name}</option>
                                 ))
                             }
@@ -271,7 +288,7 @@ export default function EmployeeCrudView(): JSX.Element {
                         <select value={departmentId} onChange={(e) => setDepartmentId(e.target.value)}>
                             {(<option key="" value=""></option>)}
                             {
-                                departmentListModel!.departmentModelList.map((department, idx) => (
+                                departmentListModel.departmentModelList.map((department, idx) => (
                                     <option key={idx} value={department.id}>{department.name}</option>
                                 ))
                             }
